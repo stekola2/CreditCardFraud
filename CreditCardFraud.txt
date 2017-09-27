@@ -1,0 +1,161 @@
+data = read.csv("creditcard.csv")
+
+head(data);
+names(data);
+max(data$Amount);
+x = data[,2:29];
+names(x);
+***
+# V1-V28 these are principal components
+# Time- since it is a transactional data set, will have more than 1 line for a specific time period
+# Amount- amount involved in the transaction
+# Class- target variable
+
+# Exploratory data analysis
+# Univariate: distributions
+# Bi-variate: correlations
+# Multivariate: correlations
+# table(data$Time,data$Class)
+***
+
+library(caret);
+head(mtcars);
+
+# pairwise plots of all the attributes by class
+
+featurePlot(x=mtcars[,1:9],y=mtcars[,10],plot = 'pairs');
+featurePlot(x=mtcars[,1:10],y=mtcars[,11],plot = 'pairs');
+
+# density plots for each attribute by the class
+#featurePlot(x=data[,2:29],y=data[,31],plot = 'density');
+
+library(corrplot);
+corrplot(cor(data[,2:29]),method = 'number');
+table(data$Class);
+
+# Immbalanced data management
+
+#1- oversampling
+#2- undersampling
+#3- Mixed sampling
+
+library(unbalanced);
+library(ROSE);
+
+# feature selction methodology
+
+# removing the features which are redundant (corr > 0.75)
+# ranking the features by their importance (Learning Vector Quantization (LVQ) model)
+# select features using Recursive feature elimination (RFE) method
+
+str(data);
+data$Class <- as.factor(data$Class);
+str(data);
+library(caret);
+data = data[,-1];
+	
+set.seed(1234);
+trainIndex = createDataPartition(data$Class,p=0.5,list=F,times = 1);
+
+dataTrain = data[trainIndex,];
+dataTest = data[-trainIndex,];
+
+head(dataTrain);
+head(dataTrain);
+dim(dataTrain);dim(dataTest);
+table(data$Class);table(dataTrain$Class);table(dataTest$Class);
+
+# cross validation 
+control <- trainControl(method = 'repeatedcv',number=3,repeats = 3);
+# setting up accuracy
+metric <-"Accuracy";
+
+# selecting the pre-processing method
+preProcess <- c("center",'scale');
+
+# linear discriminant analysis
+set.seed(1234);
+library(MASS);
+fit.lda <- train(Class~.,data=dataTrain,method = 'lda',metric = metric,preprocess = preProcess,trControl = control)
+
+fit.lda
+
+fit.lda$results
+
+# Logistic regression analysis
+set.seed(1234);
+library(MASS);
+fit.glm <- train(Class~.,data=dataTrain,method = 'glm',metric = metric,trControl = control);
+
+fit.glm
+
+# GLMNet regression analysis
+set.seed(1234)
+library(glmnet)
+fit.glmnet <- train(Class~.,data=dataTrain,method = 'glmnet',metric = metric,trControl = control)
+
+# SVM 
+library(kernlab)
+set.seed(1234)
+fit.svm <- train(Class~.,data=dataTrain,method = 'svmRadial',metric = metric,
+                 preprocess = preProcess,trControl = control,fit=F)
+
+#KNN for classification
+set.seed(1234)
+fit.knn <- train(Class~.,data=dataTrain,method = 'knn',metric = metric,
+                 preprocess = preProcess,trControl = control)
+# Naive Bayes
+set.seed(1234)
+library(klaR)
+fit.nb<-train(Class~.,data=dataTrain,method = 'nb',metric = metric,trControl = control)
+
+# CART
+set.seed(1234)
+library(rpart)
+fit.cart<-train(Class~.,data=dataTrain,method = 'rpart',metric = metric,trControl = control)
+
+# Tree based model C5.0
+set.seed(1234)
+library(C50)
+fit.c50<-train(Class~.,data=dataTrain,method = 'C5.0',metric = metric,trControl = control)
+
+# Bagging CART
+set.seed(1234)
+library(ipred)
+fit.treebag <-train(Class~.,data=dataTrain,method = 'treebag',metric = metric,trControl = control)
+
+# Random forest
+set.seed(1234)
+fit.rf <- train(Class~.,data=dataTrain,method = 'rf',metric = metric,trControl = control)
+
+
+# gradient boosting model
+set.seed(1234)
+fit.gbm <- train(Class~.,data=dataTrain,method = 'gbm',metric = metric,trControl = control)
+
+
+# neural network model
+set.seed(1234)
+library(nnet)
+fit.nnet<-train(Class~.,data=dataTrain,method = 'nnet',metric = metric,trControl = control)
+
+
+# comparison of models
+results <- resamples(list(lda=fit.lda,
+                         logistic=fit.glm,
+                         glmnet=fit.glmnet,
+                         svm=fit.svm,
+                         knn = fit.knn,
+                         nb=fit.nb,
+                         cart=fit.cart,
+                         c50=fit.c50,
+                         baggingcart=fit.treebag,
+                         randomforest=fit.rf,
+                         gbm=fit.gbm,
+                         nnet=fit.nnet))
+
+# to run the comparison
+summary(results)
+
+# consistency of all the resampling results
+bwplot(results)
