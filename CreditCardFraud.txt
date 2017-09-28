@@ -33,20 +33,10 @@ library(corrplot);
 corrplot(cor(data[,2:29]),method = 'number');
 table(data$Class);
 
-# Immbalanced data management
-
-#1- oversampling
-#2- undersampling
-#3- Mixed sampling
 
 library(unbalanced);
 library(ROSE);
 
-# feature selction methodology
-
-# removing the features which are redundant (corr > 0.75)
-# ranking the features by their importance (Learning Vector Quantization (LVQ) model)
-# select features using Recursive feature elimination (RFE) method
 
 str(data);
 data$Class <- as.factor(data$Class);
@@ -154,7 +144,7 @@ results <- resamples(list(lda=fit.lda,
                          gbm=fit.gbm,
                          nnet=fit.nnet))
 
-# to run the comparison
+
 summary(results)
 
 # consistency of all the resampling results
