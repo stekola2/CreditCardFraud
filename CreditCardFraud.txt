@@ -6,16 +6,7 @@ max(data$Amount);
 x = data[,2:29];
 names(x);
 ***
-# V1-V28 these are principal components
-# Time- since it is a transactional data set, will have more than 1 line for a specific time period
-# Amount- amount involved in the transaction
-# Class- target variable
 
-# Exploratory data analysis
-# Univariate: distributions
-# Bi-variate: correlations
-# Multivariate: correlations
-# table(data$Time,data$Class)
 ***
 
 library(caret);
