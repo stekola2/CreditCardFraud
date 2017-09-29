@@ -5,9 +5,7 @@ names(data);
 max(data$Amount);
 x = data[,2:29];
 names(x);
-***
 
-***
 
 library(caret);
 head(mtcars);
